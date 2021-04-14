@@ -15,7 +15,7 @@ REDO do desafio da concrete com novos aprendizados do academy
 
 ## Endpoints
 
-#### Criação ( /user/create )
+#### Criação ( /user/create ) - POST
 ```
     {
         "name": "João da Silva",
@@ -30,10 +30,13 @@ REDO do desafio da concrete com novos aprendizados do academy
     }
 ```
 
-#### Login ( /user/login )
+#### Login ( /user/login ) - POST
 ```
     {
         "email": "joao@silva.org",
         "password": "hunter2"
     }
 ```
+
+#### Prefil ( /user/{uuid} ) - GET
+
