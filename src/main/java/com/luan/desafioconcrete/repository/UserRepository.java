@@ -3,7 +3,6 @@ package com.luan.desafioconcrete.repository;
 import com.luan.desafioconcrete.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import java.util.UUID;
 
 @Repository

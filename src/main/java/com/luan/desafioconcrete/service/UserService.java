@@ -4,7 +4,6 @@ import com.luan.desafioconcrete.domain.User;
 import com.luan.desafioconcrete.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.UUID;
 
 @Service
