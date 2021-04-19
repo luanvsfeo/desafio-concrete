@@ -5,8 +5,6 @@ import com.luan.desafioconcrete.utils.ConversionUtil;
 import com.luan.desafioconcrete.utils.JwtTokenUtil;
 import com.luan.desafioconcrete.domain.User;
 import com.luan.desafioconcrete.dto.UserDTO;
-import com.luan.desafioconcrete.model.JwtRequest;
-import com.luan.desafioconcrete.model.JwtResponse;
 import com.luan.desafioconcrete.service.JwtUserDetailsService;
 import com.luan.desafioconcrete.service.UserService;
 import io.swagger.annotations.ApiResponse;
@@ -65,20 +63,30 @@ public class UserController {
             @ApiResponse(code = 400, message = "Email or password incorrect"),
             @ApiResponse(code = 400, message = "User don't exists")
     })
-    public ResponseEntity<?> login(@RequestBody UserDTO user) throws Exception {
+    public ResponseEntity<?> login(@RequestBody UserDTO userDTO) {
 
-        User user1 = userService.findByEmail(user.getEmail());
+        try {
+            authenticate(userDTO.getEmail(), userDTO.getPassword());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(new ResponseMessage("Email e/ou senha inválidos"));
+        }
 
-        if(user1 == null){
+        final UserDetails userDetails = userDetailsService
+                .loadUserByUsername(userDTO.getEmail());
+
+        User user = userService.findByEmail(userDetails.getUsername());
+
+        if(user == null){
             return ResponseEntity.badRequest().body(new ResponseMessage("Usuário inexistente"));
-        }else if(!ConversionUtil.matches(user.getPassword(), user1.getPassword())){
+        }else if(!ConversionUtil.matches(userDTO.getPassword(), user.getPassword())){
             return ResponseEntity.badRequest().body(new ResponseMessage("Email e/ou senha inválidos"));
         }else{
-            final String token = jwtTokenUtil.generateToken(user1);
-            user1.setToken(token);
-            user1.login();
-            user1 = userService.save(user1);
-            return ResponseEntity.status(HttpStatus.OK).body(new UserDTO(user1));
+            final String token = jwtTokenUtil.generateToken(user);
+            user.setToken(token);
+            user.login();
+            user = userService.save(user);
+            return ResponseEntity.status(HttpStatus.OK).body(new UserDTO(user));
         }
     }
 
@@ -95,7 +103,7 @@ public class UserController {
         User user = userService.findById(UUID.fromString(uuid));
         token = token.replace("Bearer ","");
 
-       if(user == null){
+        if(user == null){
            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage("Usuario não encontrado"));
        } else if(!user.getToken().equals(token)){
            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseMessage("Não autorizado"));
@@ -104,16 +112,6 @@ public class UserController {
        }else{
             return ResponseEntity.ok(new UserDTO(user));
        }
-    }
-
-
-    @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
-        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-        final UserDetails userDetails = userDetailsService
-                .loadUserByUsername(authenticationRequest.getUsername());
-        final String token = jwtTokenUtil.generateToken(userDetails);
-        return ResponseEntity.ok(new JwtResponse(token));
     }
 
     private void authenticate(String username, String password) throws Exception {
