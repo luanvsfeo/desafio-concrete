@@ -1,5 +1,6 @@
 package com.luan.desafioconcrete.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.luan.desafioconcrete.domain.User;
 import java.util.Date;
 import java.util.List;
@@ -18,10 +19,13 @@ public class UserDTO {
 
     private List<PhoneDTO> phones;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy - HH:mm:ss")
     private Date created;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy - HH:mm:ss")
     private Date modified;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy - HH:mm:ss")
     private Date lastLogin;
 
     private String token;
